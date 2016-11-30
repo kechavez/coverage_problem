@@ -18,13 +18,7 @@ function Utility(Agent, Agents, g)
   return score
 end
 
-N = 12
-n = 2
-g = barabasi_albert(N,1)
-Agents = []
-
-# AgentsLoc = sample(1:N, n, replace = false)
-# AgentsCoverage = Dict()
-# for agent in AgentsLoc
-#   AgentsCoverage[agent] = neighbors(g,agent)
-# end
+# N = 12
+# n = 2
+# g = barabasi_albert(N,1)
+# Agents = []

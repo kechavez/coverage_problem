@@ -1,3 +1,7 @@
+push!(LOAD_PATH,pwd())
+using CoverageVisual
+using Compose
+
 using LightGraphs
 using StatsBase
 using PyPlot
@@ -73,5 +77,11 @@ for m in range(1,NumofIterations)
   end
   push!(TotalCoverage, sum)
 end
-plot(1:NumofIterations, TotalCoverage)
+PyPlot.plot(1:NumofIterations, TotalCoverage)
 Display(Agents)
+
+xlabel("Time")
+ylabel("Utility Sum")
+savefig("cov_plot.pdf",format="pdf")
+visualize_graph(g, Agents)
+println("Done.")

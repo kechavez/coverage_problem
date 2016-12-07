@@ -26,6 +26,14 @@ function Utility(Agent, Agents, g)
   return score
 end
 
+function Potential(g, agents)
+  covered = []
+  for a in agents
+    covered = union(covered,neighborhood(g, a.loc, a.cov))
+  end
+  return length(covered)
+end
+
 function Display(Agents)
     # Displaying the agents and their coverage and utility
     sum = 0
@@ -40,24 +48,43 @@ function Display(Agents)
     println(" ")
 end
 
-N = 20
-n = 3
+N = 100
+n = 15
+
 # Generating a random graph
-g = random_regular_graph(N,3)
+# g = random_regular_graph(N,3)
+
+# read graph file
+f = open("graph.txt")
+s = [replace(x, '\n', "") for x in readlines(f)]
+elist = [(parse(Int64, split(s[i])[1]), parse(Int64, split(s[i])[2])) for i in 1:length(s)]
+g = Graph(N)
+for e in elist
+  add_edge!(g, e[1], e[2])
+end
+
+cov1 = 1
+cov2 = 2
+com1 = 4
+com2 = 5
 # Creating the agents randomly and storing them in a list
 Agents = []
 for i in range(1,n)
-  push!(Agents, Agent(rand(1:N),rand(1:2), rand(1:5)))
+    # loc = rand(1:N)
+    if i <= 10
+      push!(Agents, Agent(25, cov1, com1))
+    else
+      push!(Agents, Agent(25, cov2, com2))
+    end
 end
-
 
 Display(Agents)
 
 # The simulation starts here
 TotalCoverage = []    # a list that stores the total coverage every time step
-T = 0.01         # distribution parameter
+T = 0.1         # distribution parameter
 
-NumofIterations = 1000
+NumofIterations = 5000
 
 for m in range(1,NumofIterations)
   agent = Agents[rand(1:length(Agents))]
@@ -75,13 +102,14 @@ for m in range(1,NumofIterations)
   for agent in Agents
     sum = sum + Utility(agent, Agents, g)
   end
-  push!(TotalCoverage, sum)
+  # push!(TotalCoverage, sum)
+  push!(TotalCoverage, Potential(g,Agents))
 end
 PyPlot.plot(1:NumofIterations, TotalCoverage)
 Display(Agents)
 
 xlabel("Time")
 ylabel("Utility Sum")
-savefig("cov_plot.pdf",format="pdf")
-visualize_graph(g, Agents)
+savefig("blll_cov_plot.pdf",format="pdf")
+visualize_graph(g, Agents, "blll_cov_graph.pdf")
 println("Done.")

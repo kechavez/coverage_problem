@@ -57,7 +57,7 @@ function color_coverage_lg(g, agents, mems)
     println("Number of covered nodes (potential function) : "string(length(covered)))
 end
 
-function visualize_graph(g, agents)
+function visualize_graph(g, agents, name)
     # color1 -- not covered
     # color2 -- covered
     # color3 -- agent
@@ -74,9 +74,9 @@ function visualize_graph(g, agents)
     # @show neighbors(g, 17)
     # @show neighborhood(g, 25, 1)
     # @show neighbors(g, 25)
-    Compose.draw(PDF("cov_graph.pdf", 16cm, 16cm),
-                  gplot(g,nodefillc=nodefillc))
-                  # gplot(g,nodelabel=g.vertices,nodefillc=nodefillc))
+    Compose.draw(PDF(name, 25cm, 25cm),
+                  # gplot(g,nodefillc=nodefillc))
+                  gplot(g,nodelabel=g.vertices,nodefillc=nodefillc))
 end
 
 end # module CoverageVisual

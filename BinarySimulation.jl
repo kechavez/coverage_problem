@@ -26,6 +26,22 @@ function Utility(Agent, Agents, g)
   return score
 end
 
+function ArgMaxU(agent, Agents, g)
+  umax = -1.0
+  amax = nothing
+  for n in neighborhood(g, agent.loc, 1)
+    new_agent = Agent(n, agent.cov, agent.com)
+    AgentsAlt = copy(Agents)
+    AgentsAlt[findfirst(AgentsAlt, agent)] = new_agent
+    new_u = Utility(new_agent, AgentsAlt, g) 
+    if new_u > umax
+      umax = new_u
+      amax = n
+    end
+  end
+  return amax
+end
+
 function Potential(g, agents)
   covered = []
   for a in agents
@@ -81,30 +97,45 @@ end
 Display(Agents)
 
 # The simulation starts here
-TotalCoverage = []    # a list that stores the total coverage every time step
-T = 0.1         # distribution parameter
+TotalCoverage = []        # a list that stores the total coverage every time step
+T = 0.1                   # distribution parameter
+NumofIterations = 5000    # time-steps.
 
-NumofIterations = 5000
+ε = 0.333                 # epsilon greedy - exploration parameter.
+epsilon_strategy = false  # enable flag to use epsilon greedy strategy.
 
-for m in range(1,NumofIterations)
+for k in range(1,NumofIterations)
   agent = Agents[rand(1:length(Agents))]
-  UCurr = Utility(agent, Agents, g)
-  Alt = Agent(rand(neighbors(g, agent.loc)), agent.cov, agent.com)
-  AgentsAlt = copy(Agents)
-  AgentsAlt[findfirst(AgentsAlt, agent)] = Alt
-  UAlt = Utility(Alt, AgentsAlt, g)
-  choices = [UCurr, UAlt]
-  p = exp(UCurr/T)/(exp(UCurr/T)+exp(UAlt/T))
-  if rand() > p
+  Alt = nothing
+  # Softmax strategy.
+  if !epsilon_strategy
+    UCurr = Utility(agent, Agents, g)
+    Alt = Agent(rand(neighbors(g, agent.loc)), agent.cov, agent.com)
+    AgentsAlt = copy(Agents)
+    AgentsAlt[findfirst(AgentsAlt, agent)] = Alt
+    UAlt = Utility(Alt, AgentsAlt, g)
+    choices = [UCurr, UAlt]
+    p = exp(UCurr/T)/(exp(UCurr/T)+exp(UAlt/T))
+    if rand() > p
+      Agents = copy(AgentsAlt)
+    end
+  # Epsilon greedy strategy.
+  else
+    # if rand() < .13*e^(-.001*k) # exponential fit {25, .125},{500, .08}
+    # if rand() < .264*e^(-.00222*k) # exponential fit exponential fit {25, .25},{750, .05}
+    # if rand() < .7*e^(-.002*k) # exponential fit exponential fit {0, .7},{1000, .1}
+    if rand() < ε  
+      Alt = Agent(rand(neighbors(g, agent.loc)), agent.cov, agent.com)
+    else
+      Alt = Agent(ArgMaxU(agent, Agents, g), agent.cov, agent.com)
+    end
+    AgentsAlt = copy(Agents)
+    AgentsAlt[findfirst(AgentsAlt, agent)] = Alt
     Agents = copy(AgentsAlt)
   end
-  sum = 0
-  for agent in Agents
-    sum = sum + Utility(agent, Agents, g)
-  end
-  # push!(TotalCoverage, sum)
   push!(TotalCoverage, Potential(g,Agents))
 end
+
 PyPlot.plot(1:NumofIterations, TotalCoverage)
 Display(Agents)
 

@@ -92,7 +92,7 @@ TotalCoverage = []    # a list that stores the total coverage every time step
 T = 0.01         # distribution parameter
 
 NumofIterations = 5000
-w = 0.1           # Exploration parameter
+w = 0.5       # Exploration parameter
 for m in range(1,NumofIterations)
   for agent in Agents
     if agent.x == 0 && rand() < w

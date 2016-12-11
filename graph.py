@@ -1,7 +1,7 @@
 import networkx
 
 name = "graph.txt"
-radius = .16
+radius = .15
 n_nodes = 100
 
 g = networkx.random_geometric_graph(n_nodes, radius)

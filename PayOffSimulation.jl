@@ -71,6 +71,10 @@ cov1 = 1
 cov2 = 2
 com1 = 4
 com2 = 5
+
+pc = []
+# for num in 1:5 # AVERAGE TIME
+
 # Creating the agents randomly and storing them in a list
 Agents = []
 for i in range(1,n)
@@ -89,11 +93,12 @@ Display(Agents)
 
 # The simulation starts here
 TotalCoverage = []    # a list that stores the total coverage every time step
-T = 0.01         # distribution parameter
-
+T = 0.1         # distribution parameter
+w = 0.5         # Exploration parameter
 NumofIterations = 5000
-w = 0.5       # Exploration parameter
-for m in range(1,NumofIterations)
+reachedmax = false
+
+for k in range(1,NumofIterations)
   for agent in Agents
     if agent.x == 0 && rand() < w
             agent.PrevAct = agent.loc
@@ -111,19 +116,32 @@ for m in range(1,NumofIterations)
     end  
   end
 
-  sum = 0
   for agent in Agents
     agent.Ut = Utility(agent, Agents, g)
-    sum = sum + agent.Ut
   end
   # push!(TotalCoverage, sum)
+  pval = Potential(g,Agents)
+  if (!reachedmax && pval == 100)
+    push!(pc,k)
+    @show pval
+    @show k
+    reachedmax = true
+  end
   push!(TotalCoverage, Potential(g, Agents))
 end
+ax = PyPlot.gca()
+ax[:set_ylim]((0,N+10));
 PyPlot.plot(1:NumofIterations, TotalCoverage)
+PyPlot.plot(1:NumofIterations, ones(NumofIterations)*100, linestyle="--", color="black")
 Display(Agents)
 
 xlabel("Time")
-ylabel("Utility Sum")
-savefig("payoff_cov_plot.pdf",format="pdf")
+ylabel("Total Coverage (nodes)")
+savefig("payoff_cov_plot_num_w"string(w)".pdf",format="pdf")
 visualize_graph(g, Agents, "payoff_cov_graph.pdf")
 println("Done.")
+
+# end # AVERAGE TIME
+
+print("average time steps to max: ")
+println(mean(pc))
